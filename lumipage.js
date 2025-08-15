@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         Toggle Info JSON Copier (universal + observer + mat-option safe)
+// @name         Lumipage
 // @namespace    http://tampermonkey.net/
 // @version      4.4
 // @description  Ajoute un bouton ℹ️ pour copier un JSON formaté (rouge=cliquables, orange=mat-icon, bleu=textes). Fonctionne sur toute URL, SPA et overlays (mat-option).
-// @author       Vous
+// @author       axgd-code
 // @match        *://*/*
 // @run-at       document-idle
 // @grant        GM_setClipboard
