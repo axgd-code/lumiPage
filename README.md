@@ -1,6 +1,6 @@
 # LumiPage: A Web Element Selection Tool
 
-LumiPage is a user script (Tampermonkey) for developers and testers to quickly extract element data from any webpage.
+LumiPage is a user script (Tampermonkey) for developers and testers to quickly extract element anchors from any webpage.
 
 ## Features
 
