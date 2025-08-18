@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Lumipage
 // @namespace    http://tampermonkey.net/
-// @version      4.4
-// @description  Ajoute un bouton ℹ️ pour copier un JSON formaté (rouge=cliquables, orange=mat-icon, bleu=textes). Fonctionne sur toute URL, SPA et overlays (mat-option).
+// @version      4.5
+// @description  LumiPage is a user script (Tampermonkey) for developers and testers to quickly extract element anchors from any webpage.
 // @author       axgd-code
 // @match        *://*/*
 // @run-at       document-idle
@@ -243,15 +243,17 @@
         attachControls(el, 'tm-outline-red', 'clickable');
       });
 
-    // mat-icon cliquables/menus
-    root.querySelectorAll('mat-icon').forEach(el=>{
-      if(el.closest('.tm-wrapper') || el.closest('.tm-floating')) return;
-      const clickable = isClickable(el) || el.classList.contains('mat-mdc-menu-trigger') || el.getAttribute('aria-haspopup')!==null;
-      const inside = isInsideClickable(el);
-      if(clickable && (!inside || el.classList.contains('mat-mdc-menu-trigger'))){
-        attachControls(el, 'tm-outline-orange', 'clickable-icon');
-      }
-    });
+      root.querySelectorAll('mat-icon').forEach(el => {
+          const clickable = isClickable(el)
+          || el.classList.contains('mat-mdc-menu-trigger')
+          || el.getAttribute('aria-haspopup') !== null;
+
+          const inside = isInsideClickable(el);
+
+          if ((clickable && (!inside || el.classList.contains('mat-mdc-menu-trigger'))) || el.getAttribute('svgicon') === 'filter-disabled') {
+              attachControls(el, 'tm-outline-orange', 'clickable-icon');
+          }
+      });
 
     // Textes non cliquables
     root.querySelectorAll('span, p, div, h1, h2, h3, h4, h5, h6, td, th, li')
@@ -276,6 +278,66 @@
           attachControls(el, 'tm-outline-blue', 'text');
         }
       });
+
+
+       root.querySelectorAll('mat-icon').forEach(el => {
+           const clickable = isClickable(el)
+           || el.classList.contains('mat-mdc-menu-trigger')
+           || el.getAttribute('aria-haspopup') !== null;
+
+           const inside = isInsideClickable(el);
+           const parentBtn = el.closest('button, [role="button"]');
+
+           if (
+               ((clickable && (!inside || el.classList.contains('mat-mdc-menu-trigger')))
+                || el.getAttribute('svgicon') === 'filter-disabled')
+               && !parentBtn // évite le double marquage quand l'icône est dans un bouton
+           ) {
+               attachControls(el, 'tm-outline-orange', 'clickable-icon');
+           }
+       });
+
+      // === Radios & Checkboxes ===
+      ['radio', 'checkbox'].forEach(type => {
+          root.querySelectorAll(`input[type="${type}"]`).forEach(el => {
+              // marque toujours l'input
+              attachControls(el, 'tm-outline-red', `${type}-input`);
+
+              // marque aussi le conteneur MDC visible
+              const parent = el.closest(`.mdc-${type}`);
+              if (parent) {
+                  attachControls(parent, 'tm-outline-red', `${type}-parent`);
+              }
+          });
+      });
+
+      // === Slide toggles (switch) ===
+      root.querySelectorAll('mat-slide-toggle').forEach(el => {
+          const switchCtrl = el.querySelector('.mdc-switch');
+          if (switchCtrl) {
+              attachControls(switchCtrl, 'tm-outline-red', 'slide-toggle');
+          }
+      });
+
+      // === Selects (combobox) ===
+      root.querySelectorAll('mat-select').forEach(el => {
+          const trigger = el.querySelector('.mat-mdc-select-trigger');
+          if (trigger) {
+              attachControls(trigger, 'tm-outline-red', 'select-trigger');
+          }
+      });
+
+      // === Button toggles ===
+      root.querySelectorAll('mat-button-toggle').forEach(el => {
+          attachControls(el, 'tm-outline-red', 'button-toggle');
+      });
+
+      // === Text inputs & textareas ===
+      root.querySelectorAll('mat-form-field input, mat-form-field textarea').forEach(el => {
+          attachControls(el, 'tm-outline-red', 'text-input');
+      });
+
+
   }
 
   // --- Observer pour DOM dynamique (SPA, overlays, etc.) ---
